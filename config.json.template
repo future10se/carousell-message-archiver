@@ -1,0 +1,10 @@
+{
+  "cookie": "[YOUR_COOKIE_HERE]",
+  "csrfToken": "[YOUR_CSRF_TOKEN_HERE]",
+  "sessionKey": "[YOUR_SESSION_KEY_HERE]",
+  "countryCode": "[One of: AU, CA, HK, ID, MY, NZ, PH, SG, TW]",
+  "outputOffers": "offers.json",
+  "outputMessages": "offers_all_messages.json",
+  "pageCount": 20,
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15"
+}

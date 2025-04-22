@@ -1,0 +1,246 @@
+/* Basic Reset & Font */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    color: #333;
+    background-color: #f8f9fa; /* Light background for the page */
+}
+
+/* Main Layout Container */
+.main-container {
+    display: flex;
+    height: 100vh; /* Full viewport height */
+    background-color: #fff; /* White background for the main app area */
+}
+
+/* --- Left Column: Chat List --- */
+.chat-list {
+    width: 280px; /* Fixed width */
+    border-right: 1px solid #ddd;
+    overflow-y: auto;
+    flex-shrink: 0;
+    background-color: #f8f9fa; /* Slightly different bg for list */
+}
+
+.chat-list-header {
+    padding: 15px;
+    font-weight: bold;
+    font-size: 1.1em;
+    border-bottom: 1px solid #ddd;
+    background-color: #eee;
+}
+
+.chat-preview {
+    display: flex;
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    gap: 10px;
+}
+
+.chat-preview:hover {
+    background-color: #e9e9e9;
+}
+
+.chat-preview.active {
+    background-color: #d PUSH    ; /* Highlight active chat */
+}
+
+.chat-preview img.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #ccc; /* Placeholder bg */
+}
+
+.chat-info {
+    flex-grow: 1;
+    overflow: hidden; /* Prevents text overflow */
+}
+
+.chat-info .username {
+    font-weight: bold;
+    font-size: 0.95em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-info .message-preview {
+    font-size: 0.85em;
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-timestamp {
+    font-size: 0.75em;
+    color: #777;
+    margin-left: auto; /* Push timestamp to the right */
+    white-space: nowrap;
+    align-self: flex-start; /* Align top */
+}
+
+
+/* --- Middle Column: Chat Window --- */
+.chat-window {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #ddd;
+}
+
+.messages-container {
+    flex-grow: 1;
+    padding: 20px 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.messages-container .placeholder {
+    text-align: center;
+    color: #888;
+    margin-top: 50px;
+    font-style: italic;
+}
+
+.date-separator {
+    text-align: center;
+    color: #888;
+    font-size: 0.85em;
+    margin: 15px 0;
+}
+
+.message {
+    display: flex;
+    max-width: 75%;
+    margin-bottom: 5px;
+}
+
+.message.sent {
+    align-self: flex-end; /* Align right */
+    flex-direction: row-reverse; /* Put bubble before time */
+}
+.message.received {
+    align-self: flex-start; /* Align left */
+}
+
+.message-bubble {
+    padding: 8px 12px;
+    border-radius: 15px;
+    font-size: 0.95em;
+    line-height: 1.4;
+    position: relative; /* For potential timestamp positioning */
+}
+.message.sent .message-bubble {
+    background-color: #dcf8c6; /* Light green for sent */
+    border-bottom-right-radius: 3px; /* Typical chat bubble shape */
+}
+.message.received .message-bubble {
+    background-color: #fff; /* White for received */
+    border: 1px solid #eee;
+    border-bottom-left-radius: 3px; /* Typical chat bubble shape */
+}
+/* Basic timestamp placeholder */
+.message-timestamp {
+    font-size: 0.7em;
+    color: #999;
+    align-self: flex-end; /* Position timestamp at the bottom */
+    margin: 0 5px;
+}
+
+
+/* --- Right Column: Item Details --- */
+.item-details {
+    width: 250px; /* Fixed width */
+    padding: 20px 15px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    background-color: #f8f9fa;
+}
+
+.item-details .placeholder {
+    text-align: center;
+    color: #888;
+    margin-top: 50px;
+    font-style: italic;
+}
+
+.item-image {
+    width: 100%;
+    height: auto;
+    max-height: 200px; /* Limit image height */
+    object-fit: contain; /* Show whole image, may have letterboxing */
+    background-color: #eee; /* Placeholder */
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+}
+
+.item-details h2 {
+    font-size: 1.2em; /* Adjusted size */
+    margin-bottom: 5px;
+    line-height: 1.3;
+}
+
+.item-details .price {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #E91E63; /* Use a distinct color for price */
+    margin-bottom: 15px;
+}
+
+.seller-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.seller-info img.small-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #ccc;
+}
+
+.seller-info .username {
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.location {
+    font-size: 0.85em; /* Adjusted size */
+    color: #666;
+    margin-bottom: 15px;
+}
+.location::before { /* Optional icon */
+    content: '📍 '; /* Placeholder icon */
+    margin-right: 3px;
+}
+
+.description {
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: #555;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+.description h3 {
+    font-size: 1em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}

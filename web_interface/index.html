@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Archive Viewer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <!-- Left Column: Chat List -->
+        <div class="chat-list" id="chat-list-container">
+            <!-- Chat previews will be loaded here by JS -->
+            <div class="chat-list-header">Chats</div>
+        </div>
+
+        <!-- Middle Column: Chat Window -->
+        <div class="chat-window">
+            <div class="messages-container" id="messages-container">
+                <!-- Messages will be loaded here by JS -->
+                <p class="placeholder">Select a chat from the left to view messages.</p>
+            </div>
+            <!-- Input area (optional for viewer) -->
+            <!-- <div class="message-input"> ... </div> -->
+        </div>
+
+        <!-- Right Column: Item Details -->
+        <div class="item-details" id="item-details-container">
+            <!-- Item details will be loaded here by JS -->
+            <p class="placeholder">Select a chat to view item details.</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
