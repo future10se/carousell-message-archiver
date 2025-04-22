@@ -15,6 +15,8 @@ They have said that you may [manually save your messages](https://github.com/use
    * Edit `config.json` as necessary (see [below](#more-on-configuration) for details)
 5. Run `node ./fetch_offers.js` and `node ./fetch_offer_messages.js`.
    * This will output `offers.json` and `offers_all_messages.json` by default
+6. (optional) Run `node ./fetch_images.js` to download photos
+   * This will output to the folder `/media`
 
 The offers and messages output JSON will contain the raw data from Carousell's API.
 
@@ -91,7 +93,7 @@ The offers and messages output JSON will contain the raw data from Carousell's A
 
 - [ ] currently only fetches 15 messages per thread for some reason
 - [ ] figure out how to automatically get `sessionKey`
-- [ ] also archive photos and images
+- [x] also archive photos and images
 - [ ] incrementally update an existing archive instead of downloading everything all over again
 - [ ] package into single executable to make it easier for non-developers
 - [ ] make it easier to use chat viewer
