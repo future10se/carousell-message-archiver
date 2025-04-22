@@ -23,9 +23,11 @@ The offers and messages output JSON will contain the raw data from Carousell's A
 ## How to view messages
 
 1. Copy `offers.json` and `offers_all_messages.json` to `/web_interface`.
-2. Run a web server in `/web_interface`
+2. (optional) Copy `/media` folder to `/web_interface/media`
+    * If you don't have a local copy of photos, the viewer webapp will fetch them from the web (unless Carousell deletes them too 🤷)
+3. Run a web server in `/web_interface`
     * You can try `python3 -m http.server` or `npx http-server`
-3. open http://localhost:8000 (or wherever your server is)
+4. open http://localhost:8000 (or wherever your server is)
 
 ## More on configuration
 

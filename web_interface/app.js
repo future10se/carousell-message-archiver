@@ -9,6 +9,74 @@ document.addEventListener("DOMContentLoaded", () => {
   let messagesMap = new Map();
   let myUserId = null; // Globally store the ID determined to be "me"
 
+  // --- Helper Functions ---
+
+  /**
+   * Calculates a relative local path mirroring the web URL's path.
+   * Example: https://media.domain.com/media/photos/abc.jpg -> ./media/photos/abc.jpg
+   * @param {string} webUrl The original web URL.
+   * @returns {string|null} The calculated relative local path, or null if input is invalid.
+   */
+  function getLocalPathFromUrl(webUrl) {
+    if (!webUrl || typeof webUrl !== "string" || !webUrl.startsWith("http")) {
+      // Don't attempt conversion for placeholders, data URIs, or invalid URLs
+      return null;
+    }
+    try {
+      const url = new URL(webUrl);
+      // Create path like ./pathname/ Rmov leading slash from pathname
+      const relativePath = "." + url.pathname;
+      return relativePath;
+    } catch (e) {
+      console.error(`Error creating URL object for: ${webUrl}`, e);
+      return null; // Return null if URL parsing fails
+    }
+  }
+
+  /**
+   * Sets an image source, trying a local path first and falling back to the web URL.
+   * @param {HTMLImageElement} imgElement The <img> element to update.
+   * @param {string} webUrl The original web URL (used for fallback).
+   * @param {string} placeholderUrl Optional: A placeholder if both local and web fail.
+   */
+  function setImageWithFallback(
+    imgElement,
+    webUrl,
+    placeholderUrl = "placeholder-image.png",
+  ) {
+    // Default placeholder
+    const localPath = getLocalPathFromUrl(webUrl);
+
+    if (!localPath) {
+      // If no valid local path could be derived (e.g., placeholder, invalid URL), just use the webUrl directly.
+      imgElement.src = webUrl || placeholderUrl; // Use placeholder if webUrl is also bad
+      return;
+    }
+
+    // Define the error handler *before* setting the initial src
+    imgElement.onerror = function () {
+      // Log failure (optional)
+      console.log(
+        `Local image failed: ${this.src}. Falling back to: ${webUrl}`,
+      );
+
+      // Prevent infinite loops if the web URL also fails.
+      // Optionally, set to a final placeholder on second failure.
+      this.onerror = function () {
+        console.error(`Fallback image failed: ${webUrl}. Using placeholder.`);
+        this.onerror = null; // Stop trying
+        this.src = placeholderUrl; // Use the final placeholder
+      };
+
+      // Set the source to the original web URL
+      this.src = webUrl;
+    };
+
+    // Try setting the local path first
+    imgElement.src = localPath;
+    console.log(`Attempting local image: ${localPath}`); // Optional: log attempt
+  }
+
   // --- Data Loading and Cross-Offer "Me" Identification ---
   async function loadData() {
     try {
@@ -25,7 +93,6 @@ document.addEventListener("DOMContentLoaded", () => {
       allOffers = await offersResponse.json();
       const offerMessagesArray = await messagesResponse.json();
 
-      // Populate messagesMap (remains the same)
       messagesMap = new Map();
       offerMessagesArray.forEach((item) => {
         if (item.offer_id && Array.isArray(item.messages)) {
@@ -44,12 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       offerMessagesArray.forEach((item) => {
         const currentOfferId = item.offer_id;
-        if (!currentOfferId || !item.messages) {
-          return; // Skip if offer_id or messages are missing
-        }
-
+        if (!currentOfferId || !item.messages) return; // Skip if offer_id or messages are missing
         item.messages.forEach((msg) => {
-          // Check if user and user_id exist [2]
           if (msg && msg.user && typeof msg.user.user_id !== "undefined") {
             const userId = msg.user.user_id;
 
@@ -73,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
           console.log(
             `Determined 'Me' User ID based on presence in multiple offers: ${myUserId} (Present in ${offerSet.size} offers)`,
           );
-          break; // Found the first one, stop searching
+          break;
         }
       }
 
@@ -103,7 +166,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- UI Population ---
 
-  // displayChatList remains the same
   function displayChatList() {
     chatListContainer.innerHTML = '<div class="chat-list-header">Chats</div>';
 
@@ -125,21 +187,29 @@ document.addEventListener("DOMContentLoaded", () => {
       previewElement.classList.add("chat-preview");
       previewElement.dataset.offerId = offer.id;
 
+      // Create the img element separately to apply the fallback logic
+      const avatarImg = document.createElement("img");
+      avatarImg.alt = username;
+      avatarImg.classList.add("avatar");
+      // Use a specific placeholder for avatars if needed
+      setImageWithFallback(avatarImg, avatarUrl, "placeholder-avatar.png");
+
       previewElement.innerHTML = `
-                <img src="${avatarUrl}" alt="${username}" class="avatar">
+                <!-- Avatar will be inserted here -->
                 <div class="chat-info">
                     <div class="username">${username}</div>
                     <div class="message-preview">${lastMessage}</div>
                 </div>
                 <div class="chat-timestamp">${timestamp}</div>
             `;
+      // Prepend the avatar image to the preview element
+      previewElement.insertBefore(avatarImg, previewElement.firstChild);
 
       previewElement.addEventListener("click", () => selectChat(offer.id));
       chatListContainer.appendChild(previewElement);
     });
   }
 
-  // displayItemDetails remains the same
   function displayItemDetails(offer) {
     const product = offer.product; // [3]
     const user = offer.user; // [3]
@@ -158,17 +228,18 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `${offer.currency_symbol || ""}${offer.latest_price_formatted}`
         : "Price not set"; // [3]
     const sellerName = user.username || "Unknown Seller"; // [3]
-    const sellerAvatar = user.profile?.image_url || "placeholder-avatar.png"; // [3]
+    const sellerAvatarUrl = user.profile?.image_url || "placeholder-avatar.png"; // [3] Use specific placeholder
     const location = product.smart_attributes?.city || "Location not specified"; // [3]
     const description =
       product.description || product.title || "No description provided."; // [1, 3]
 
+    // --- Use <img> tag for item-image to enable onerror ---
     itemDetailsContainer.innerHTML = `
-            <img src="${imageUrl}" alt="${title}" class="item-image">
+            <img class="item-image" id="detail-item-image" alt="${title}"> <!-- Changed to img tag with id -->
             <h2>${title}</h2>
             <div class="price">${price}</div>
             <div class="seller-info">
-                <img src="${sellerAvatar}" alt="${sellerName}" class="small-avatar">
+                <img alt="${sellerName}" class="small-avatar" id="detail-seller-avatar"> <!-- Added id -->
                 <span class="username">${sellerName}</span>
             </div>
             <div class="location">${location}</div>
@@ -177,10 +248,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 <p>${description}</p>
             </div>
         `;
+
+    // --- Apply fallback logic after setting innerHTML ---
+    const itemImgElement = document.getElementById("detail-item-image");
+    if (itemImgElement) {
+      setImageWithFallback(itemImgElement, imageUrl, "placeholder-image.png");
+    }
+
+    const sellerAvatarElement = document.getElementById("detail-seller-avatar");
+    if (sellerAvatarElement) {
+      // Use avatar placeholder for the seller avatar
+      setImageWithFallback(
+        sellerAvatarElement,
+        sellerAvatarUrl,
+        "placeholder-avatar.png",
+      );
+    }
   }
 
-  // displayMessages uses the determined myUserId (remains the same as previous version)
-  // --- Updated displayMessages to correct timestamp handling ---
+  // displayMessages remains the same (using corrected timestamp logic)
   function displayMessages(offerId) {
     messagesContainer.innerHTML = "";
 
@@ -205,9 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // --- CORRECTION: Assume created_at is already in milliseconds ---
-      // Remove the "* 1000"
-      const messageDateObj = new Date(msg.created_at); // [2] Use the value directly
+      const messageDateObj = new Date(msg.created_at); // [2] Assume milliseconds
 
       // Check if the date is valid after creation
       if (isNaN(messageDateObj.getTime())) {
@@ -215,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
           "Skipping message with invalid created_at timestamp:",
           msg,
         );
-        return; // Skip if the date couldn't be parsed
+        return;
       }
 
       const messageDate = messageDateObj.toLocaleDateString(); // [1]
@@ -234,7 +318,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const isSent = myUserId !== null && messageUserId === myUserId;
       messageElement.classList.add(isSent ? "sent" : "received");
 
-      // --- CORRECTION: Also use the correct Date object for time ---
       const messageTime = messageDateObj.toLocaleTimeString([], {
         hour: "numeric",
         minute: "2-digit",
@@ -242,9 +325,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }); // [2]
 
       messageElement.innerHTML = `
-              <div class="message-bubble">${msg.message || ""}</div>
-              <div class="message-timestamp">${messageTime}</div>
-          `;
+                <div class="message-bubble">${msg.message || ""}</div>
+                <div class="message-timestamp">${messageTime}</div>
+            `;
       messagesContainer.appendChild(messageElement);
     });
 
