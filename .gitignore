@@ -1,3 +1,18 @@
+# config file
+config.json
+
+# default output
+offers.json
+offers_all_messages.json
+web_interface/offers.json
+web_interface/offers_all_messages.json
+
+# media / photo downloads
+media/
+sample/
+web_interface/media/
+web_interface/sample/
+
 # Logs
 logs
 *.log
